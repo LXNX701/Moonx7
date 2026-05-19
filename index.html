@@ -2,43 +2,59 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MOONZAZA | Cosmic Store</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MOONZAZA | Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Orbitron:wght@900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="loader" class="loader-container"><div class="moon-spinner"></div><p>CARGANDO ÓRBITA...</p></div>
-
-    <header>
-        <div class="top-announcement">ENTREGA INMEDIATA — MOONX7 SYSTEM ACTIVE</div>
-        <nav class="navbar">
-            <a href="index.html" class="logo">🌙 MOON<span>ZAZA</span></a>
-            <div class="search-container">
-                <input type="text" id="searchInput" placeholder="Buscar en el cosmos...">
+    <header class="app-header">
+        <div class="nav-wrapper">
+            <div class="logo">🌙 MOON<span>ZAZA</span></div>
+            <div class="header-actions">
+                <button class="icon-btn" onclick="toggleCart()">
+                    <span class="cart-count" id="CN">0</span>
+                    🛒
+                </button>
             </div>
-            <div class="nav-tools">
-                <button class="cart-icon" onclick="toggleCart()">🛒 <span id="CN">0</span></button>
-                <a href="admin.html" class="admin-gear">⚙️</a>
-            </div>
-        </nav>
+        </div>
     </header>
 
-    <main class="container">
-        <section class="hero-banner">
-            <h1>INNOVACIÓN <span>CÓSMICA</span></h1>
-            <p>Los mejores paneles y servicios digitales en un solo lugar.</p>
+    <main class="app-content">
+        <section class="hero-card">
+            <div class="glass-info">
+                <span class="badge">SISTEMA MOONX7</span>
+                <h1>COMPRÁ INNOVACIÓN</h1>
+                <p>Paneles verificados con entrega en 3 minutos.</p>
+            </div>
         </section>
-        <div id="productsGrid" class="cosmic-grid"></div>
+
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Buscar productos, ofertas, marcas...">
+        </div>
+
+        <h2 class="section-title">Productos Destacados</h2>
+        <div id="productsGrid" class="product-grid">
+            </div>
     </main>
 
     <div id="cartOverlay" class="overlay" onclick="toggleCart()"></div>
-    <div id="cartSidebar" class="sidebar">
-        <div class="side-header"><h3>MI CARRITO</h3><button onclick="toggleCart()">✕</button></div>
-        <div id="cartItems" class="side-content"></div>
-        <div class="side-footer">
-            <div class="total-line">Total: <span id="CT">$0.00 USD</span></div>
-            <button class="btn-stellar" onclick="checkout()">PEDIR POR WHATSAPP</button>
+    <div id="cartSidebar" class="cart-sidebar">
+        <div class="cart-header">
+            <h3>MI COMPRA</h3>
+            <button class="close-btn" onclick="toggleCart()">✕</button>
+        </div>
+        
+        <div id="cartItems" class="cart-items-list"></div>
+
+        <div class="upsell-section">
+            <h4>¿Te olvidaste algo?</h4>
+            <div class="upsell-grid" id="upsellGrid"></div>
+        </div>
+
+        <div class="cart-footer">
+            <div class="price-row"><span>Total</span> <span id="CT">$0.00</span></div>
+            <button class="btn-checkout" onclick="checkout()">FINALIZAR COMPRA</button>
         </div>
     </div>
 

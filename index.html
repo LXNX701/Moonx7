@@ -38,19 +38,24 @@
 <style>
   body { background-color: #0D0D0D; color: #e5e2e1; font-family: 'Inter', sans-serif; }
   .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-  .glass-card { background: rgba(26, 26, 26, 0.8); backdrop-filter: blur(12px); border: 1px solid #2A2A2A; }
+  .glass-card { background: rgba(26, 26, 26, 0.8); backdrop-filter: blur(12px); border: 1px solid #2A2A2A; transition: all 0.3s ease; }
+  .glass-card:hover { transform: translateY(-4px); border-color: #ff571a; box-shadow: 0 0 20px rgba(255, 87, 26, 0.2); }
   .cart-badge { position: absolute; top: -5px; right: -5px; background: #ff571a; color: white; font-size: 10px; font-weight: bold; width: 18px; height: 18px; border-radius: 9999px; display: flex; align-items: center; justify-content: center; }
+  .sidebar-link { transition: all 0.2s ease; }
+  .sidebar-link:hover { background: rgba(255, 87, 26, 0.1); transform: translateX(4px); }
 </style>
 </head>
 <body class="bg-background">
-<nav class="fixed top-0 z-[100] w-full bg-surface border-b border-outline-variant">
+
+<!-- NAVBAR -->
+<nav class="fixed top-0 z-[100] w-full bg-surface/95 backdrop-blur-md border-b border-outline-variant">
   <div class="flex justify-between items-center px-4 md:px-8 max-w-7xl mx-auto h-16">
     <div class="text-xl font-extrabold text-primary flex items-center gap-2 cursor-pointer" onclick="location.href='index.html'">
       <span class="bg-primary-container text-on-primary-container px-2 py-1 rounded text-xs">🌙</span> MoonX7
     </div>
     <div class="flex items-center gap-4">
       <div class="relative">
-        <button class="material-symbols-outlined text-primary hover:bg-surface-container-high p-2 rounded-full" onclick="location.href='compra.html'">shopping_cart</button>
+        <button class="material-symbols-outlined text-primary hover:bg-surface-container-high p-2 rounded-full transition-all" onclick="location.href='compra.html'">shopping_cart</button>
         <span class="cart-badge" id="cartBadge" style="display:none;">0</span>
       </div>
       <div id="authSection"></div>
@@ -58,43 +63,81 @@
   </div>
 </nav>
 
+<!-- SIDEBAR (solo visible en desktop) -->
+<aside class="hidden lg:flex flex-col h-[calc(100vh-64px)] w-64 fixed left-0 top-16 bg-surface-container border-r border-outline-variant p-4 z-40">
+  <div class="flex-1">
+    <div class="mb-6 px-2">
+      <h3 class="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-4">Categorías</h3>
+      <div class="space-y-1">
+        <button class="sidebar-link w-full flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:text-primary rounded-lg transition-all">
+          <span class="material-symbols-outlined text-sm">dashboard</span>
+          <span class="text-sm">Dashboard</span>
+        </button>
+        <button class="sidebar-link w-full flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:text-primary rounded-lg transition-all">
+          <span class="material-symbols-outlined text-sm">category</span>
+          <span class="text-sm">Productos</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Botones que aparecen según sesión -->
+  <div class="border-t border-outline-variant pt-4 px-2 space-y-2">
+    <button id="adminPanelBtn" class="hidden w-full py-2.5 bg-primary-container text-on-primary-container rounded-xl font-bold flex items-center justify-center gap-2 transition-all hover:opacity-90">
+      <span class="material-symbols-outlined text-sm">admin_panel_settings</span>
+      Admin Panel
+    </button>
+    <button id="logoutBtn" class="hidden w-full py-2.5 bg-error-container text-on-error-container rounded-xl font-bold flex items-center justify-center gap-2 transition-all hover:opacity-90">
+      <span class="material-symbols-outlined text-sm">logout</span>
+      Cerrar Sesión
+    </button>
+  </div>
+</aside>
+
+<!-- MODAL DE LOGIN -->
 <div id="loginModal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/70 backdrop-blur-sm">
   <div class="bg-surface-container-high rounded-2xl p-6 w-full max-w-md border border-outline-variant">
     <h2 class="text-xl font-bold mb-4">Acceso a MoonX7</h2>
     <div id="loginForm">
-      <input type="email" id="loginEmail" placeholder="Email" class="w-full bg-surface p-3 rounded-lg mb-3 border border-outline-variant">
-      <input type="password" id="loginPassword" placeholder="Contraseña" class="w-full bg-surface p-3 rounded-lg mb-4 border border-outline-variant">
-      <button id="doLogin" class="w-full bg-primary-container text-on-primary-container py-3 rounded-xl font-bold">Ingresar</button>
-      <p class="text-center mt-3 text-sm"><a href="#" onclick="showRegister()" class="text-primary">¿No tienes cuenta? Regístrate</a></p>
+      <input type="email" id="loginEmail" placeholder="Email" class="w-full bg-surface p-3 rounded-lg mb-3 border border-outline-variant focus:outline-none focus:border-primary">
+      <input type="password" id="loginPassword" placeholder="Contraseña" class="w-full bg-surface p-3 rounded-lg mb-4 border border-outline-variant focus:outline-none focus:border-primary">
+      <button id="doLogin" class="w-full bg-primary-container text-on-primary-container py-3 rounded-xl font-bold transition-all hover:opacity-90">Ingresar</button>
+      <p class="text-center mt-3 text-sm"><a href="#" onclick="showRegister()" class="text-primary hover:underline">¿No tienes cuenta? Regístrate</a></p>
     </div>
     <div id="registerForm" style="display:none;">
-      <input type="text" id="regName" placeholder="Nombre" class="w-full bg-surface p-3 rounded-lg mb-3 border border-outline-variant">
-      <input type="email" id="regEmail" placeholder="Email" class="w-full bg-surface p-3 rounded-lg mb-3 border border-outline-variant">
-      <input type="password" id="regPassword" placeholder="Contraseña" class="w-full bg-surface p-3 rounded-lg mb-4 border border-outline-variant">
-      <button id="doRegister" class="w-full bg-primary-container text-on-primary-container py-3 rounded-xl font-bold">Registrarse</button>
-      <p class="text-center mt-3 text-sm"><a href="#" onclick="showLogin()" class="text-primary">¿Ya tienes cuenta? Ingresa</a></p>
+      <input type="text" id="regName" placeholder="Nombre" class="w-full bg-surface p-3 rounded-lg mb-3 border border-outline-variant focus:outline-none focus:border-primary">
+      <input type="email" id="regEmail" placeholder="Email" class="w-full bg-surface p-3 rounded-lg mb-3 border border-outline-variant focus:outline-none focus:border-primary">
+      <input type="password" id="regPassword" placeholder="Contraseña" class="w-full bg-surface p-3 rounded-lg mb-4 border border-outline-variant focus:outline-none focus:border-primary">
+      <button id="doRegister" class="w-full bg-primary-container text-on-primary-container py-3 rounded-xl font-bold transition-all hover:opacity-90">Registrarse</button>
+      <p class="text-center mt-3 text-sm"><a href="#" onclick="showLogin()" class="text-primary hover:underline">¿Ya tienes cuenta? Ingresa</a></p>
     </div>
-    <button id="closeModal" class="w-full mt-2 text-on-surface-variant">Cancelar</button>
+    <button id="closeModal" class="w-full mt-3 text-on-surface-variant hover:text-primary transition-all">Cancelar</button>
   </div>
 </div>
 
-<main class="pt-20 px-4 md:px-8 max-w-7xl mx-auto pb-12">
-  <div class="relative rounded-2xl overflow-hidden mb-12 min-h-[250px] flex items-center bg-surface-container-high border border-outline-variant p-8">
+<!-- MAIN CONTENT -->
+<main class="lg:ml-64 pt-20 px-4 md:px-8 max-w-7xl mx-auto pb-12">
+  <!-- HERO BANNER -->
+  <div class="relative rounded-2xl overflow-hidden mb-12 min-h-[280px] flex items-center bg-surface-container-high border border-outline-variant p-8">
+    <div class="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-transparent"></div>
     <div class="relative z-10">
       <span class="inline-block px-3 py-1 bg-secondary-container text-on-secondary-container text-xs rounded-full mb-4">🔥 OFERTA ESPECIAL</span>
       <h1 class="text-4xl md:text-5xl font-bold">MoonX7<br/><span class="text-primary-container">Innovación Digital</span></h1>
-      <p class="text-on-surface-variant mt-4">Los mejores mods, licencias y productos digitales.</p>
+      <p class="text-on-surface-variant mt-4 max-w-lg">Los mejores mods, licencias y productos digitales para tu experiencia gaming.</p>
     </div>
   </div>
 
+  <!-- BUSCADOR -->
   <div class="mb-8">
-    <input id="searchInput" type="text" placeholder="🔍 Buscar productos..." class="w-full md:w-96 bg-surface-container-high border border-outline-variant rounded-xl py-3 px-4">
+    <input id="searchInput" type="text" placeholder="🔍 Buscar productos..." class="w-full md:w-96 bg-surface-container-high border border-outline-variant rounded-xl py-3 px-4 focus:outline-none focus:border-primary transition-all">
   </div>
 
+  <!-- GRID DE PRODUCTOS -->
   <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
 </main>
 
-<footer class="bg-surface-container-lowest border-t border-outline-variant py-8 text-center text-sm text-on-surface-variant">
+<!-- FOOTER -->
+<footer class="bg-surface-container-lowest border-t border-outline-variant py-8 text-center text-sm text-on-surface-variant lg:ml-64">
   <p>© 2025 MoonX7 - Todos los derechos reservados</p>
 </footer>
 
@@ -103,13 +146,21 @@
   
   let currentUser = null;
   
+  // Renderizar productos
   async function renderProducts(search = '') {
     const products = await getProducts();
     const filtered = products.filter(p => p.name.toLowerCase().includes(search) || (p.description || '').toLowerCase().includes(search));
-    document.getElementById('productsGrid').innerHTML = filtered.map(p => `
-      <div class="glass-card rounded-2xl overflow-hidden transition-all hover:-translate-y-1">
-        <div class="aspect-video relative">
-          <img class="w-full h-full object-cover" src="${p.image || 'https://placehold.co/400x300/1a1a1a/ff571a?text=MoonX7'}">
+    const grid = document.getElementById('productsGrid');
+    
+    if (filtered.length === 0) {
+      grid.innerHTML = '<div class="col-span-full text-center py-12 text-on-surface-variant">No hay productos disponibles. 🛒</div>';
+      return;
+    }
+    
+    grid.innerHTML = filtered.map(p => `
+      <div class="glass-card rounded-2xl overflow-hidden group">
+        <div class="aspect-video relative overflow-hidden">
+          <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="${p.image || 'https://placehold.co/400x300/1a1a1a/ff571a?text=MoonX7'}" alt="${p.name}">
           ${p.hot ? '<span class="absolute top-3 left-3 bg-secondary-container text-on-secondary-container text-xs px-2 py-1 rounded">🔥 HOT</span>' : ''}
         </div>
         <div class="p-5">
@@ -117,22 +168,33 @@
             <h3 class="font-bold text-lg">${p.name}</h3>
             <span class="text-primary font-bold">$${p.price}</span>
           </div>
-          <p class="text-sm text-on-surface-variant mb-4">${p.description || 'Sin descripción'}</p>
-          <button onclick="window.addToCartHandler(${p.id})" class="w-full py-2 bg-surface-variant hover:bg-primary-container rounded-xl transition-all">🛒 Agregar</button>
+          <p class="text-sm text-on-surface-variant mb-4 line-clamp-2">${p.description || 'Sin descripción'}</p>
+          <button onclick="window.addToCartHandler(${p.id})" class="w-full py-2.5 bg-surface-variant hover:bg-primary-container hover:text-on-primary-container rounded-xl transition-all font-medium">
+            🛒 Agregar al carrito
+          </button>
         </div>
       </div>
     `).join('');
   }
   
+  // Agregar al carrito
   window.addToCartHandler = async (productId) => {
-    if (!currentUser) { alert('Inicia sesión para comprar'); toggleLoginModal(); return; }
+    if (!currentUser) { 
+      alert('⚠️ Inicia sesión para comprar'); 
+      toggleLoginModal(); 
+      return; 
+    }
     await addToCart(currentUser.id, productId, 1);
-    alert('✅ Producto agregado');
+    alert('✅ Producto agregado al carrito');
     updateCartBadge();
   };
   
+  // Actualizar badge del carrito
   async function updateCartBadge() {
-    if (!currentUser) { document.getElementById('cartBadge').style.display = 'none'; return; }
+    if (!currentUser) { 
+      document.getElementById('cartBadge').style.display = 'none'; 
+      return; 
+    }
     const { data } = await supabase.from('cart').select('quantity').eq('user_id', currentUser.id);
     const count = data?.reduce((s, i) => s + i.quantity, 0) || 0;
     const badge = document.getElementById('cartBadge');
@@ -140,15 +202,32 @@
     badge.style.display = count > 0 ? 'flex' : 'none';
   }
   
+  // Actualizar UI según sesión
   function updateAuthUI() {
     const authSection = document.getElementById('authSection');
+    const adminBtn = document.getElementById('adminPanelBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    
     if (currentUser) {
-      authSection.innerHTML = `<button onclick="logout()" class="bg-error-container text-on-error-container px-3 py-1 rounded-lg text-sm">🚪 Salir</button>`;
+      authSection.innerHTML = `<button onclick="logout()" class="bg-error-container text-on-error-container px-3 py-1.5 rounded-lg text-sm font-medium hover:opacity-90 transition-all">🚪 Salir</button>`;
+      
+      if (currentUser.role === 'admin') {
+        adminBtn.classList.remove('hidden');
+        adminBtn.onclick = () => location.href = 'dashboard.html';
+      } else {
+        adminBtn.classList.add('hidden');
+      }
+      
+      logoutBtn.classList.remove('hidden');
+      logoutBtn.onclick = async () => { await signOut(); location.reload(); };
     } else {
-      authSection.innerHTML = `<button onclick="toggleLoginModal()" class="bg-primary-container text-on-primary-container px-4 py-2 rounded-lg text-sm font-bold">Ingresar</button>`;
+      authSection.innerHTML = `<button onclick="toggleLoginModal()" class="bg-primary-container text-on-primary-container px-4 py-1.5 rounded-lg text-sm font-bold hover:opacity-90 transition-all">Ingresar</button>`;
+      adminBtn.classList.add('hidden');
+      logoutBtn.classList.add('hidden');
     }
   }
   
+  // Modal functions
   window.toggleLoginModal = () => {
     const modal = document.getElementById('loginModal');
     modal.classList.toggle('hidden');
@@ -167,26 +246,34 @@
   
   window.logout = async () => { await signOut(); location.reload(); };
   
+  // Event listeners
   document.getElementById('doLogin').onclick = async () => {
-    const { error } = await signIn(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value);
-    if (error) alert('Error: ' + error.message);
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    const { error } = await signIn(email, password);
+    if (error) alert('❌ Error: ' + error.message);
     else { toggleLoginModal(); location.reload(); }
   };
   
   document.getElementById('doRegister').onclick = async () => {
-    const { error } = await signUp(document.getElementById('regEmail').value, document.getElementById('regPassword').value, document.getElementById('regName').value);
-    if (error) alert('Error: ' + error.message);
-    else { alert('Registro exitoso! Ahora inicia sesión.'); showLogin(); }
+    const name = document.getElementById('regName').value;
+    const email = document.getElementById('regEmail').value;
+    const password = document.getElementById('regPassword').value;
+    const { error } = await signUp(email, password, name);
+    if (error) alert('❌ Error: ' + error.message);
+    else { alert('✅ Registro exitoso! Ahora inicia sesión.'); showLogin(); }
   };
   
   document.getElementById('closeModal').onclick = toggleLoginModal;
   document.getElementById('searchInput').addEventListener('input', (e) => renderProducts(e.target.value.toLowerCase()));
   
+  // Inicializar
   currentUser = await getCurrentUser();
   updateAuthUI();
   await renderProducts();
   if (currentUser) await updateCartBadge();
   
+  // Escuchar cambios de autenticación
   onAuthStateChange(() => { location.reload(); });
 </script>
 </body>

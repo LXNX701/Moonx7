@@ -1,0 +1,58 @@
+:root {
+    --bg: #050508;
+    --purple: #7000ff;
+    --blue: #00d4ff;
+    --text: #e0e0ff;
+    --glass: rgba(255, 255, 255, 0.03);
+}
+
+body {
+    margin: 0; font-family: 'Rajdhani', sans-serif;
+    background: radial-gradient(circle at top, #10002b 0%, var(--bg) 100%);
+    color: var(--text); min-height: 100vh;
+}
+
+.container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+
+/* Header & Logo */
+.navbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 15px 5%; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(0, 212, 255, 0.2); position: sticky; top: 0; z-index: 100;
+}
+.logo { font-family: 'Orbitron', sans-serif; font-size: 22px; text-decoration: none; color: white; font-weight: 900; }
+.logo span { background: linear-gradient(to right, var(--blue), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.top-announcement { background: var(--purple); font-size: 10px; text-align: center; padding: 4px; font-weight: bold; letter-spacing: 1px; }
+
+/* Cards Galácticas */
+.cosmic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 25px; padding: 30px 0; }
+.pcard {
+    background: var(--glass); border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 15px; overflow: hidden; transition: 0.4s;
+}
+.pcard:hover { transform: translateY(-10px); border-color: var(--blue); box-shadow: 0 0 25px rgba(0, 212, 255, 0.2); }
+.pcard img { width: 100%; aspect-ratio: 16/9; object-fit: cover; }
+.p-info { padding: 15px; }
+.p-price { color: var(--blue); font-size: 22px; font-weight: 700; margin: 10px 0; }
+
+/* Botones */
+.btn-stellar {
+    width: 100%; padding: 12px; border: none; border-radius: 8px;
+    background: linear-gradient(45deg, var(--purple), var(--blue));
+    color: white; font-family: 'Orbitron', sans-serif; cursor: pointer; font-weight: bold;
+}
+
+/* Sidebar Carrito */
+.sidebar {
+    position: fixed; top: 0; right: -400px; width: 320px; height: 100%;
+    background: #0a0a12; transition: 0.4s; z-index: 1000; padding: 20px;
+    border-left: 1px solid var(--purple);
+}
+.sidebar.active { right: 0; }
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; z-index: 900; }
+.overlay.active { display: block; }
+
+/* Loader */
+.loader-container { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 2000; }
+.moon-spinner { width: 50px; height: 50px; border: 3px solid transparent; border-top-color: var(--blue); border-radius: 50%; animation: spin 1s infinite linear; }
+@keyframes spin { to { transform: rotate(360deg); } }

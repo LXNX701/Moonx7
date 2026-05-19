@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin | Moonzaza Control</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+</head>
+<body class="admin-body">
+    <header>
+        <nav class="navbar"><a href="index.html" class="logo">🌙 MOON<span>CONTROL</span></a></nav>
+    </header>
+    <main class="container">
+        <div class="admin-form-card">
+            <h2>DESPLEGAR PRODUCTO</h2>
+		            <input type="text" id="pN" placeholder="Nombre del Producto">
+            <input type="number" id="pP" placeholder="Precio (USD)">
+            <input type="text" id="pI" placeholder="URL de la Imagen">
+            <button class="btn-stellar" onclick="saveProd()">SUBIR A LA TIENDA</button>
+        </div>
+        <h3>INVENTARIO ACTUAL</h3>
+        <div id="adminList" class="admin-inventory-list"></div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js"></script>
+</body>
+</html>

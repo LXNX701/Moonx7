@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html class="dark" lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Métodos de Pago - MoonX7</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script type="importmap">
+  { "imports": { "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm" } }
+</script>
+<style>
+  .glass-panel { background: rgba(26, 26, 26, 0.8); backdrop-filter: blur(12px); border: 1px solid #2a2a2a; }
+</style>
+</head>
+<body class="bg-background text-on-surface">
+<aside class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-container border-r border-outline-variant p-4">
+  <div class="mb-8"><h1 class="text-xl font-bold text-primary">🌙 MoonX7</h1><p class="text-xs text-on-surface-variant">Admin Panel</p></div>
+  <nav class="space-y-2 flex-1">
+    <a href="dashboard.html" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-variant rounded-lg">📊 Dashboard</a>
+    <a href="admin-productos.html" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-variant rounded-lg">📦 Productos</a>
+    <a href="admin-pedidos.html" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-variant rounded-lg">📋 Pedidos</a>
+    <a href="admin-pagos.html" class="flex items-center gap-3 px-4 py-3 bg-primary-container text-on-primary-container rounded-lg font-bold">💳 Métodos de Pago</a>
+  </nav>
+  <button id="logoutBtn" class="w-full bg-error-container text-on-error-container py-2 rounded-lg">🚪 Cerrar Sesión</button>
+</aside>
+
+<main class="md:ml-64 p-8">
+  <div class="flex justify-between items-center mb-8"><h1 class="text-3xl font-bold">💳 Métodos de Pago</h1><button onclick="openAddModal()" class="bg-primary-container px-4 py-2 rounded-lg">➕ Agregar</button></div>
+  <div id="methodsList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+</main>
+
+<div id="methodModal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+  <div class="bg-surface-container-high rounded-2xl p-6 w-full max-w-md">
+    <h3 class="text-xl font-bold mb-4" id="modalTitle">Agregar método</h3>
+    <form id="methodForm" class="space-y-4">
+      <input type="hidden" id="methodId">
+      <input type="text" id="methodName" placeholder="Nombre" required class="w-full bg-surface-container-low border rounded-lg p-3">
+      <input type="text" id="methodCode" placeholder="Código" required class="w-full bg-surface-container-low border rounded-lg p-3">
+      <input type="url" id="methodLogo" placeholder="URL del logo" class="w-full bg-surface-container-low border rounded-lg p-3">
+      <input type="text" id="methodDesc" placeholder="Descripción" class="w-full bg-surface-container-low border rounded-lg p-3">
+      <div class="flex items-center gap-3"><input type="checkbox" id="methodActive" checked> <label>Activo</label></div>
+      <input type="number" id="methodOrder" placeholder="Orden" value="0" class="w-full bg-surface-container-low border rounded-lg p-3">
+      <div class="flex gap-3"><button type="submit" class="flex-1 bg-primary py-2 rounded-lg">💾 Guardar</button><button type="button" onclick="closeModal()" class="flex-1 border py-2 rounded-lg">Cancelar</button></div>
+    </form>
+  </div>
+</div>
+
+<script type="module">
+  import { supabase, getCurrentUser, signOut, getAllPaymentMethods, createPaymentMethod, updatePaymentMethod, deletePaymentMethod } from './js/supabase.js';
+  
+  const user = await getCurrentUser();
+  if (!user || user.role !== 'admin') location.href = 'index.html';
+  
+  async function loadMethods() {
+    const methods = await getAllPaymentMethods();
+    document.getElementById('methodsList').innerHTML = methods.map(m => `
+      <div class="glass-panel p-4 rounded-xl flex justify-between items-center">
+        <div><div class="font-bold">${m.name}</div><div class="text-xs text-on-surface-variant">${m.code}</div></div>
+        <div class="flex gap-2"><button onclick="editMethod(${m.id})" class="bg-primary-container px-3 py-1 rounded">✏️</button><button onclick="deleteMethod(${m.id})" class="bg-error-container px-3 py-1 rounded">🗑️</button></div>
+      </div>
+    `).join('');
+  }
+  
+  window.editMethod = async (id) => {
+    const { data } = await supabase.from('payment_methods').select('*').eq('id', id).single();
+    document.getElementById('methodId').value = data.id;
+    document.getElementById('methodName').value = data.name;
+    document.getElementById('methodCode').value = data.code;
+    document.getElementById('methodLogo').value = data.logo_url || '';
+    document.getElementById('methodDesc').value = data.description || '';
+    document.getElementById('methodActive').checked = data.is_active;
+    document.getElementById('methodOrder').value = data.sort_order;
+    document.getElementById('modalTitle').textContent = 'Editar método';
+    document.getElementById('methodModal').classList.remove('hidden'); document.getElementById('methodModal').classList.add('flex');
+  };
+  
+  window.openAddModal = () => { document.getElementById('methodForm').reset(); document.getElementById('methodId').value = ''; document.getElementById('methodActive').checked = true; document.getElementById('modalTitle').textContent = 'Agregar método'; document.getElementById('methodModal').classList.remove('hidden'); document.getElementById('methodModal').classList.add('flex'); };
+  
+  document.getElementById('methodForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const data = { name: document.getElementById('methodName').value, code: document.getElementById('methodCode').value, logo_url: document.getElementById('methodLogo').value, description: document.getElementById('methodDesc').value, is_active: document.getElementById('methodActive').checked, sort_order: parseInt(document.getElementById('methodOrder').value) };
+    const id = document.getElementById('methodId').value;
+    if (id) await updatePaymentMethod(id, data);
+    else await createPaymentMethod(data);
+    closeModal(); loadMethods();
+  });
+  
+  window.deleteMethod = async (id) => { if (confirm('¿Eliminar?')) { await deletePaymentMethod(id); loadMethods(); } };
+  window.closeModal = () => { document.getElementById('methodModal').classList.add('hidden'); document.getElementById('methodModal').classList.remove('flex'); };
+  document.getElementById('logoutBtn').onclick = async () => { await signOut(); location.href = 'index.html'; };
+  
+  loadMethods();
+</script>
+</body>
+</html>

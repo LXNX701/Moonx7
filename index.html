@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html class="dark" lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MoonX7 | Catálogo de Innovación</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;family=JetBrains+Mono:wght@700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script type="importmap">
+  { "imports": { "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm" } }
+</script>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "primary": "#ffb59e",
+          "secondary": "#ffb4aa",
+          "background": "#131313",
+          "surface": "#131313",
+          "surface-container": "#201f1f",
+          "surface-container-high": "#2a2a2a",
+          "surface-container-low": "#1c1b1b",
+          "surface-variant": "#353534",
+          "on-surface": "#e5e2e1",
+          "on-surface-variant": "#e6beb2",
+          "primary-container": "#ff571a",
+          "on-primary-container": "#521300",
+          "outline-variant": "#5c4037",
+          "error-container": "#93000a",
+          "on-error-container": "#ffdad6"
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body { background-color: #0D0D0D; color: #e5e2e1; font-family: 'Inter', sans-serif; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  .glass-card { background: rgba(26, 26, 26, 0.8); backdrop-filter: blur(12px); border: 1px solid #2A2A2A; }
+  .cart-badge { position: absolute; top: -5px; right: -5px; background: #ff571a; color: white; font-size: 10px; font-weight: bold; width: 18px; height: 18px; border-radius: 9999px; display: flex; align-items: center; justify-content: center; }
+</style>
+</head>
+<body class="bg-background">
+<nav class="fixed top-0 z-[100] w-full bg-surface border-b border-outline-variant">
+  <div class="flex justify-between items-center px-4 md:px-8 max-w-7xl mx-auto h-16">
+    <div class="text-xl font-extrabold text-primary flex items-center gap-2 cursor-pointer" onclick="location.href='index.html'">
+      <span class="bg-primary-container text-on-primary-container px-2 py-1 rounded text-xs">🌙</span> MoonX7
+    </div>
+    <div class="flex items-center gap-4">
+      <div class="relative">
+        <button class="material-symbols-outlined text-primary hover:bg-surface-container-high p-2 rounded-full" onclick="location.href='compra.html'">shopping_cart</button>
+        <span class="cart-badge" id="cartBadge" style="display:none;">0</span>
+      </div>
+      <div id="authSection"></div>
+    </div>
+  </div>
+</nav>
+
+<div id="loginModal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/70 backdrop-blur-sm">
+  <div class="bg-surface-container-high rounded-2xl p-6 w-full max-w-md border border-outline-variant">
+    <h2 class="text-xl font-bold mb-4">Acceso a MoonX7</h2>
+    <div id="loginForm">
+      <input type="email" id="loginEmail" placeholder="Email" class="w-full bg-surface p-3 rounded-lg mb-3 border border-outline-variant">
+      <input type="password" id="loginPassword" placeholder="Contraseña" class="w-full bg-surface p-3 rounded-lg mb-4 border border-outline-variant">
+      <button id="doLogin" class="w-full bg-primary-container text-on-primary-container py-3 rounded-xl font-bold">Ingresar</button>
+      <p class="text-center mt-3 text-sm"><a href="#" onclick="showRegister()" class="text-primary">¿No tienes cuenta? Regístrate</a></p>
+    </div>
+    <div id="registerForm" style="display:none;">
+      <input type="text" id="regName" placeholder="Nombre" class="w-full bg-surface p-3 rounded-lg mb-3 border border-outline-variant">
+      <input type="email" id="regEmail" placeholder="Email" class="w-full bg-surface p-3 rounded-lg mb-3 border border-outline-variant">
+      <input type="password" id="regPassword" placeholder="Contraseña" class="w-full bg-surface p-3 rounded-lg mb-4 border border-outline-variant">
+      <button id="doRegister" class="w-full bg-primary-container text-on-primary-container py-3 rounded-xl font-bold">Registrarse</button>
+      <p class="text-center mt-3 text-sm"><a href="#" onclick="showLogin()" class="text-primary">¿Ya tienes cuenta? Ingresa</a></p>
+    </div>
+    <button id="closeModal" class="w-full mt-2 text-on-surface-variant">Cancelar</button>
+  </div>
+</div>
+
+<main class="pt-20 px-4 md:px-8 max-w-7xl mx-auto pb-12">
+  <div class="relative rounded-2xl overflow-hidden mb-12 min-h-[250px] flex items-center bg-surface-container-high border border-outline-variant p-8">
+    <div class="relative z-10">
+      <span class="inline-block px-3 py-1 bg-secondary-container text-on-secondary-container text-xs rounded-full mb-4">🔥 OFERTA ESPECIAL</span>
+      <h1 class="text-4xl md:text-5xl font-bold">MoonX7<br/><span class="text-primary-container">Innovación Digital</span></h1>
+      <p class="text-on-surface-variant mt-4">Los mejores mods, licencias y productos digitales.</p>
+    </div>
+  </div>
+
+  <div class="mb-8">
+    <input id="searchInput" type="text" placeholder="🔍 Buscar productos..." class="w-full md:w-96 bg-surface-container-high border border-outline-variant rounded-xl py-3 px-4">
+  </div>
+
+  <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+</main>
+
+<footer class="bg-surface-container-lowest border-t border-outline-variant py-8 text-center text-sm text-on-surface-variant">
+  <p>© 2025 MoonX7 - Todos los derechos reservados</p>
+</footer>
+
+<script type="module">
+  import { supabase, getProducts, addToCart, getCurrentUser, signIn, signUp, signOut, onAuthStateChange } from './js/supabase.js';
+  
+  let currentUser = null;
+  
+  async function renderProducts(search = '') {
+    const products = await getProducts();
+    const filtered = products.filter(p => p.name.toLowerCase().includes(search) || (p.description || '').toLowerCase().includes(search));
+    document.getElementById('productsGrid').innerHTML = filtered.map(p => `
+      <div class="glass-card rounded-2xl overflow-hidden transition-all hover:-translate-y-1">
+        <div class="aspect-video relative">
+          <img class="w-full h-full object-cover" src="${p.image || 'https://placehold.co/400x300/1a1a1a/ff571a?text=MoonX7'}">
+          ${p.hot ? '<span class="absolute top-3 left-3 bg-secondary-container text-on-secondary-container text-xs px-2 py-1 rounded">🔥 HOT</span>' : ''}
+        </div>
+        <div class="p-5">
+          <div class="flex justify-between items-start mb-2">
+            <h3 class="font-bold text-lg">${p.name}</h3>
+            <span class="text-primary font-bold">$${p.price}</span>
+          </div>
+          <p class="text-sm text-on-surface-variant mb-4">${p.description || 'Sin descripción'}</p>
+          <button onclick="window.addToCartHandler(${p.id})" class="w-full py-2 bg-surface-variant hover:bg-primary-container rounded-xl transition-all">🛒 Agregar</button>
+        </div>
+      </div>
+    `).join('');
+  }
+  
+  window.addToCartHandler = async (productId) => {
+    if (!currentUser) { alert('Inicia sesión para comprar'); toggleLoginModal(); return; }
+    await addToCart(currentUser.id, productId, 1);
+    alert('✅ Producto agregado');
+    updateCartBadge();
+  };
+  
+  async function updateCartBadge() {
+    if (!currentUser) { document.getElementById('cartBadge').style.display = 'none'; return; }
+    const { data } = await supabase.from('cart').select('quantity').eq('user_id', currentUser.id);
+    const count = data?.reduce((s, i) => s + i.quantity, 0) || 0;
+    const badge = document.getElementById('cartBadge');
+    badge.textContent = count;
+    badge.style.display = count > 0 ? 'flex' : 'none';
+  }
+  
+  function updateAuthUI() {
+    const authSection = document.getElementById('authSection');
+    if (currentUser) {
+      authSection.innerHTML = `<button onclick="logout()" class="bg-error-container text-on-error-container px-3 py-1 rounded-lg text-sm">🚪 Salir</button>`;
+    } else {
+      authSection.innerHTML = `<button onclick="toggleLoginModal()" class="bg-primary-container text-on-primary-container px-4 py-2 rounded-lg text-sm font-bold">Ingresar</button>`;
+    }
+  }
+  
+  window.toggleLoginModal = () => {
+    const modal = document.getElementById('loginModal');
+    modal.classList.toggle('hidden');
+    modal.classList.toggle('flex');
+  };
+  
+  window.showRegister = () => {
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('registerForm').style.display = 'block';
+  };
+  
+  window.showLogin = () => {
+    document.getElementById('loginForm').style.display = 'block';
+    document.getElementById('registerForm').style.display = 'none';
+  };
+  
+  window.logout = async () => { await signOut(); location.reload(); };
+  
+  document.getElementById('doLogin').onclick = async () => {
+    const { error } = await signIn(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value);
+    if (error) alert('Error: ' + error.message);
+    else { toggleLoginModal(); location.reload(); }
+  };
+  
+  document.getElementById('doRegister').onclick = async () => {
+    const { error } = await signUp(document.getElementById('regEmail').value, document.getElementById('regPassword').value, document.getElementById('regName').value);
+    if (error) alert('Error: ' + error.message);
+    else { alert('Registro exitoso! Ahora inicia sesión.'); showLogin(); }
+  };
+  
+  document.getElementById('closeModal').onclick = toggleLoginModal;
+  document.getElementById('searchInput').addEventListener('input', (e) => renderProducts(e.target.value.toLowerCase()));
+  
+  currentUser = await getCurrentUser();
+  updateAuthUI();
+  await renderProducts();
+  if (currentUser) await updateCartBadge();
+  
+  onAuthStateChange(() => { location.reload(); });
+</script>
+</body>
+</html>

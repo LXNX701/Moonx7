@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html class="dark" lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mi Carrito - MoonX7</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script type="importmap">
+  { "imports": { "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm" } }
+</script>
+<style>
+  .glass-card { background: rgba(26, 26, 26, 0.8); backdrop-filter: blur(12px); border: 1px solid #2A2A2A; }
+</style>
+</head>
+<body class="bg-background text-on-surface">
+<header class="fixed top-0 w-full z-50 bg-surface border-b border-outline-variant">
+  <div class="flex justify-between items-center px-4 md:px-8 max-w-7xl mx-auto h-16">
+    <div class="text-xl font-bold text-primary cursor-pointer" onclick="location.href='index.html'">🌙 MoonX7</div>
+    <button onclick="location.href='checkout.html'" class="bg-primary-container text-on-primary-container px-4 py-2 rounded-lg">Finalizar compra →</button>
+  </div>
+</header>
+
+<main class="pt-24 max-w-4xl mx-auto px-4 pb-24">
+  <h1 class="text-3xl font-bold mb-8">🛒 Mi Carrito</h1>
+  <div id="cartItems" class="space-y-4"></div>
+  <div id="emptyCart" class="glass-card p-8 text-center hidden">Tu carrito está vacío. <a href="index.html" class="text-primary">Seguir comprando</a></div>
+</main>
+
+<script type="module">
+  import { supabase, getCart, updateCartItem, removeFromCart, getCurrentUser } from './js/supabase.js';
+  
+  const user = await getCurrentUser();
+  if (!user) location.href = 'index.html';
+  
+  async function renderCart() {
+    const cart = await getCart(user.id);
+    const container = document.getElementById('cartItems');
+    const emptyDiv = document.getElementById('emptyCart');
+    
+    if (cart.length === 0) {
+      container.innerHTML = '';
+      emptyDiv.classList.remove('hidden');
+      return;
+    }
+    emptyDiv.classList.add('hidden');
+    
+    container.innerHTML = cart.map(item => `
+      <div class="glass-card p-4 rounded-xl flex flex-wrap gap-4 items-center justify-between">
+        <div class="flex-1"><h3 class="font-bold">${item.products.name}</h3><p class="text-primary">$${item.products.price}</p></div>
+        <div class="flex items-center gap-3">
+          <button onclick="updateQty(${item.id}, ${item.quantity - 1})" class="w-8 h-8 bg-surface-variant rounded-lg">-</button>
+          <span class="w-8 text-center">${item.quantity}</span>
+          <button onclick="updateQty(${item.id}, ${item.quantity + 1})" class="w-8 h-8 bg-surface-variant rounded-lg">+</button>
+        </div>
+        <div class="text-right"><div class="font-bold">$${(item.products.price * item.quantity).toFixed(2)}</div><button onclick="removeItem(${item.id})" class="text-red-400 text-sm">Eliminar</button></div>
+      </div>
+    `).join('');
+  }
+  
+  window.updateQty = async (cartId, newQty) => {
+    if (newQty <= 0) await removeFromCart(cartId);
+    else await updateCartItem(cartId, newQty);
+    renderCart();
+  };
+  
+  window.removeItem = async (cartId) => {
+    await removeFromCart(cartId);
+    renderCart();
+  };
+  
+  renderCart();
+</script>
+</body>
+</html>

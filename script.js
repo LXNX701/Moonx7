@@ -1,49 +1,79 @@
-// CONFIGURACIÓN SUPABASE
+// --- CONFIGURACIÓN (REEMPLAZA CON TUS LLAVES) ---
 const SUPA_URL = 'https://ivkikynruyhazugzasyg.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2a2lreW5ydXloYXp1Z3phc3lnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1Nzg5MDgsImV4cCI6MjA5MDE1NDkwOH0.9xcBUZX0GX2uLA3-IXjmAWFQv5luR0z-Ui4o2PIfRFs';
 const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
 
+const ADMIN_USER = "admin";
+const ADMIN_PASS = "moon77"; // Tu contraseña
+
 let cart = [];
 
-// CARGAR DATOS
-async function init() {
+// --- SEGURIDAD Y LOGS ---
+async function login() {
+    const u = document.getElementById('user').value;
+    const p = document.getElementById('pass').value;
+
+    if (u === ADMIN_USER && p === ADMIN_PASS) {
+        // Registrar en Supabase
+        await supa.from('admin_logs').insert([{ usuario: u, evento: "Acceso Exitoso" }]);
+        localStorage.setItem('moon_auth', 'true');
+        checkAuth();
+    } else {
+        await supa.from('admin_logs').insert([{ usuario: u, evento: "Fallo de Login: " + u }]);
+        alert("Credenciales incorrectas");
+    }
+}
+
+function checkAuth() {
+    const auth = localStorage.getItem('moon_auth');
+    if (auth === 'true' && document.getElementById('adminPanel')) {
+        document.getElementById('loginSection').style.display = 'none';
+        document.getElementById('adminPanel').style.display = 'block';
+        loadLogs();
+    }
+}
+
+function logout() {
+    localStorage.removeItem('moon_auth');
+    location.reload();
+}
+
+// --- GESTIÓN DE PRODUCTOS ---
+async function loadData() {
     const { data } = await supa.from('products').select('*').order('created_at', {ascending: false});
     if (data) {
         renderShop(data);
-        if(document.getElementById('adminList')) renderAdmin(data);
+        if (document.getElementById('adminList')) renderAdmin(data);
     }
-    if(document.getElementById('loader')) document.getElementById('loader').style.display = 'none';
 }
 
 function renderShop(items) {
     const grid = document.getElementById('productsGrid');
-    if(!grid) return;
+    if (!grid) return;
     grid.innerHTML = items.map(p => `
         <div class="pcard">
-            <img src="${p.image || 'https://via.placeholder.com/300x170'}">
-            <div class="p-info">
-                <h3>${p.name}</h3>
-                <div class="p-price">$${p.price_1d} USD</div>
-                <button class="btn-stellar" onclick="add('${p.name}', ${p.price_1d})">AGREGAR</button>
-            </div>
+            <img src="${p.image}">
+            <h4>${p.name}</h4>
+            <div class="p-price">$${p.price_1d} USD</div>
+            <button class="btn-main" onclick="addToCart('${p.name}', ${p.price_1d})">Añadir</button>
         </div>
     `).join('');
 }
 
-// CARRITO
-function add(n, p) {
-    cart.push({n, p});
-    updateUI();
+// Carrito
+function addToCart(name, price) {
+    cart.push({ name, price });
+    updateCartUI();
     toggleCart(true);
 }
 
-function updateUI() {
+function updateCartUI() {
     document.getElementById('CN').innerText = cart.length;
-    const total = cart.reduce((a, b) => a + b.p, 0);
-    document.getElementById('CT').innerText = `$${total.toFixed(2)} USD`;
+    const total = cart.reduce((a, b) => a + b.price, 0);
+    document.getElementById('CT').innerText = `$${total.toFixed(2)}`;
     document.getElementById('cartItems').innerHTML = cart.map(i => `
-        <div style="display:flex; justify-content:space-between; margin-bottom:10px; background:rgba(255,255,255,0.05); padding:10px; border-radius:5px;">
-            <span>${i.n}</span> <span>$${i.p}</span>
+        <div style="display:flex; justify-content:space-between; background:#1c1c1e; padding:12px; border-radius:12px; margin-bottom:10px">
+            <span>${i.name}</span> <strong>$${i.price}</strong>
         </div>
     `).join('');
 }
@@ -56,36 +86,23 @@ function toggleCart(open) {
 }
 
 function checkout() {
-    if(!cart.length) return;
-    let msg = "🌙 *PEDIDO MOONZAZA* 🌙\\n\\n";
-    cart.forEach(i => msg += `🚀 ${i.n} - $${i.p}\\n`);
-    msg += `\\n*TOTAL:* $${cart.reduce((a,b)=>a+b.p,0).toFixed(2)} USD`;
+    let msg = "✨ *PEDIDO MOONZAZA STORE* ✨\\n\\n";
+    cart.forEach(i => msg += `• ${i.name} ($${i.price})\\n`);
+    msg += `\\n*TOTAL:* $${cart.reduce((a,b)=>a+b.price,0).toFixed(2)} USD`;
     window.open(`https://wa.me/543521402846?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
-// ADMIN FUNCTIONS
-async function saveProd() {
-    const name = document.getElementById('pN').value;
-    const price = document.getElementById('pP').value;
-    const image = document.getElementById('pI').value;
-    const { error } = await supa.from('products').insert([{ name, price_1d: price, image }]);
-    if(!error) { alert("¡Desplegado en la órbita!"); location.reload(); }
-}
-
-function renderAdmin(items) {
-    document.getElementById('adminList').innerHTML = items.map(p => `
-        <div style="display:flex; justify-content:space-between; background:#111; padding:15px; margin-bottom:10px; border:1px solid #333; border-radius:10px;">
-            <span>${p.name} ($${p.price_1d})</span>
-            <button onclick="del(${p.id})" style="background:red; color:white; border:none; border-radius:5px; cursor:pointer;">BORRAR</button>
-        </div>
-    `).join('');
-}
-
-async function del(id) {
-    if(confirm("¿Eliminar producto?")) {
-        await supa.from('products').delete().eq('id', id);
-        location.reload();
+// Logs en Admin
+async function loadLogs() {
+    const { data } = await supa.from('admin_logs').select('*').order('fecha', {ascending: false}).limit(10);
+    if (data) {
+        document.getElementById('logsList').innerHTML = data.map(l => `
+            <div>[${new Date(l.fecha).toLocaleTimeString()}] ${l.usuario}: ${l.evento}</div>
+        `).join('');
     }
 }
 
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded', () => {
+    loadData();
+    checkAuth();
+});
